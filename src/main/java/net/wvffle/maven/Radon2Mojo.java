@@ -22,6 +22,7 @@ import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.shared.dependency.graph.traversal.CollectingDependencyNodeVisitor;
 
 import java.io.*;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ public class Radon2Mojo extends AbstractMojo {
         File radonConfigFile = new File(configPath);
 
         if (!inputFile.exists()) {
+            System.err.println("target jar not found");
             throw new MojoFailureException("target jar not found");
         }
 
@@ -63,6 +65,7 @@ public class Radon2Mojo extends AbstractMojo {
         inputFile.renameTo(newInputFile);
 
         if (!radonConfigFile.exists()) {
+            System.err.println("radon.yml not found");
             throw new MojoFailureException("radon.yml not found");
         }
 
@@ -82,6 +85,12 @@ public class Radon2Mojo extends AbstractMojo {
                 JRTExtractor.main(jrtFile);
                 jrtFile = rt;
             } catch (Throwable e) {
+                if (e instanceof AccessDeniedException) {
+                    System.err.println("rt.jar is unaccessible or non-existant");
+                } else {
+                    System.err.println(e.getMessage());
+                }
+
                 throw new MojoFailureException(e.getMessage(), e);
             }
         }
@@ -104,6 +113,7 @@ public class Radon2Mojo extends AbstractMojo {
                 artifacts.add(node.getArtifact());
             }
         } catch (DependencyGraphBuilderException e) {
+            System.err.println(e.getMessage());
             throw new MojoFailureException(e.getMessage(), e);
         }
 
@@ -137,6 +147,7 @@ public class Radon2Mojo extends AbstractMojo {
             YamlPrinter printer = Yaml.createYamlPrinter(new FileWriter(workingConfigFile));
             printer.print(generated);
         } catch (IOException e) {
+            System.err.println(e.getMessage());
             throw new MojoFailureException(e.getMessage(), e);
         }
 
@@ -163,6 +174,7 @@ public class Radon2Mojo extends AbstractMojo {
                 throw new MojoFailureException("Radon exception");
             }
         } catch (IOException | InterruptedException e) {
+            System.err.println(e.getMessage());
             throw new MojoFailureException(e.getMessage(), e);
         }
     }
