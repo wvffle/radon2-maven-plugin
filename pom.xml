@@ -10,8 +10,8 @@
 
     <distributionManagement>
         <repository>
-            <id>wvffle</id>
-            <url>https://repo.wvffle.net/repository/jenkins-builds/</url>
+            <id>wvffle-repo</id>
+            <url>https://repo.wvffle.net/releases/</url>
         </repository>
     </distributionManagement>
 
